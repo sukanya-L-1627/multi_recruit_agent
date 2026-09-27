@@ -39,7 +39,7 @@ export default function RecruiterSummaries() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                   <ScoreRing score={s.fit_score || 0} size={70} />
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>{s.name}</div>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>{s.name || 'Unknown Candidate'}</div>
                     <div style={{ marginTop: 6 }}><RecommendBadge rec={s.recommendation} /></div>
                   </div>
                 </div>

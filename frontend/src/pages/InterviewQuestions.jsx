@@ -61,7 +61,7 @@ export default function InterviewQuestions() {
                 onClick={() => loadQuestions(c.id)}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>{c.name}</div>
+                    <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-primary)' }}>{c.name || 'Unknown Candidate'}</div>
                     <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{c.email || 'No email'}</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

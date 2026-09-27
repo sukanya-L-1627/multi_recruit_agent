@@ -9,9 +9,11 @@ import logging
 from typing import Optional, List, Dict
 from datetime import datetime
 
-from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from jose import jwt
+from core.auth import SECRET_KEY, ALGORITHM
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
@@ -149,6 +151,9 @@ class UserRegister(BaseModel):
 class StatusUpdate(BaseModel):
     status: str
 
+class APIKeyUpdate(BaseModel):
+    gemini_api_key: str
+
 # ── Health ────────────────────────────────────────────────────────────────────
 @app.get("/", tags=["Health"])
 def root():
@@ -192,8 +197,28 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         "token_type": "bearer",
         "username": db_user.username,
         "email": db_user.email,
-        "role": db_user.role
+        "role": db_user.role,
+        "has_api_key": bool(db_user.gemini_api_key)
     }
+
+@app.post("/auth/update-api-key", tags=["Auth"])
+def update_api_key(
+    update: APIKeyUpdate,
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db)
+):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Not logged in")
+    token = authorization.replace("Bearer ", "")
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    
+    db_user = db.query(User).filter(User.username == payload.get("sub")).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    db_user.gemini_api_key = update.gemini_api_key
+    db.commit()
+    return {"message": "API Key saved securely."}
 
 # ── Job Descriptions ──────────────────────────────────────────────────────────
 @app.post("/job-descriptions/", tags=["Job Descriptions"])
@@ -229,6 +254,7 @@ async def upload_resume(
     jd_id: int = Form(...),
     send_email: bool = Form(False),
     client_id: Optional[str] = Form(None),
+    authorization: Optional[str] = Header(None),
     db: Session = Depends(get_db)
 ):
     # Validate file type
@@ -239,6 +265,18 @@ async def upload_resume(
     jd = db.query(JobDescription).filter(JobDescription.id == jd_id).first()
     if not jd:
         raise HTTPException(status_code=404, detail="Job description not found.")
+
+    # Extract user API key and inject into environment
+    if authorization:
+        try:
+            token = authorization.replace("Bearer ", "")
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            user = db.query(User).filter(User.username == payload.get("sub")).first()
+            if user and user.gemini_api_key:
+                os.environ["GEMINI_API_KEY"] = user.gemini_api_key
+                os.environ["GOOGLE_API_KEY"] = user.gemini_api_key
+        except:
+            pass
 
     # Save file
     safe_name = file.filename.replace(" ", "_")

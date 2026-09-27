@@ -14,6 +14,7 @@ const navItems = [
   { to: '/summaries', icon: FileCheck, label: 'Recruiter Summaries', section: 'insights' },
   { to: '/interview-questions', icon: MessageSquare, label: 'Interview Questions', section: 'insights' },
   { to: '/search', icon: Search, label: 'Semantic Search', section: 'tools' },
+  { to: '/settings', icon: LayoutDashboard, label: 'Settings', section: 'tools' },
 ]
 
 const sections = {

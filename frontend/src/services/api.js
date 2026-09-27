@@ -55,3 +55,4 @@ export const healthCheck = () => api.get('/health')
 // ── Auth ──────────────────────────────────────────────
 export const login = (email, password) => api.post('/auth/login', { email, password })
 export const register = (username, email, password) => api.post('/auth/register', { username, email, password })
+export const updateApiKey = (gemini_api_key) => api.post('/auth/update-api-key', { gemini_api_key })

@@ -1,40 +1,29 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { login } from '../services/api'
-import { LogIn, User, Lock, Loader, ShieldCheck, ArrowLeft } from 'lucide-react'
+import { register } from '../services/api'
+import { LogIn, User, Lock, Loader, ArrowLeft, Mail } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useToast } from '../components/Toast'
 
-export default function Login() {
+export default function Register() {
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const toast = useToast()
 
-  useEffect(() => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-  }, [])
-
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault()
-    if (!email || !password) return toast('Please enter all fields', 'warning')
+    if (!username || !email || !password) return toast('Please enter all fields', 'warning')
     
     setLoading(true)
     try {
-      const res = await login(email, password)
-      localStorage.setItem('token', res.data.access_token)
-      localStorage.setItem('user', JSON.stringify({
-        username: res.data.username,
-        email: res.data.email,
-        role: res.data.role
-      }))
-      toast(`Welcome back, ${res.data.username}!`, 'success')
-      // Force the browser to go to dashboard (fixes the flashing bug)
-      window.location.href = '/dashboard'
+      await register(username, email, password)
+      toast(`Account created successfully! Please login.`, 'success')
+      window.location.href = '/login'
     } catch (err) {
-      toast(err.response?.data?.detail || 'Login failed', 'error')
+      toast(err.response?.data?.detail || 'Registration failed', 'error')
     } finally {
       setLoading(false)
     }
@@ -45,7 +34,6 @@ export default function Login() {
       minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
       background: '#050508', position: 'relative', overflow: 'hidden'
     }}>
-      {/* Background Gradients */}
       <div style={{
         position: 'absolute', top: '-10%', left: '-10%', width: '50vw', height: '50vw',
         background: 'radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%)',
@@ -89,28 +77,37 @@ export default function Login() {
           }}>
             R
           </div>
-          <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: -1, color: 'white', marginBottom: 12 }}>HR Portal Login</h1>
+          <h1 style={{ fontSize: 28, fontWeight: 900, letterSpacing: -1, color: 'white', marginBottom: 12 }}>Create Account</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.5 }}>
-            Access the Multi-Agent Recruitment Platform <br/> using your enterprise credentials.
+            Join the Multi-Agent Recruitment Platform.
           </p>
         </div>
 
-        <form onSubmit={handleLogin} autoComplete="off">
-          {/* Dummy inputs to trick browser auto-fill */}
-          <input type="text" name="prevent_autofill" style={{ display: 'none' }} tabIndex="-1" />
-          <input type="password" name="password_fake" style={{ display: 'none' }} tabIndex="-1" />
+        <form onSubmit={handleRegister} autoComplete="off">
+          <div className="form-group" style={{ marginBottom: 20 }}>
+            <label className="form-label" style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Username</label>
+            <div style={{ position: 'relative' }}>
+              <User size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input
+                type="text"
+                className="form-input"
+                style={{ padding: '14px 16px 14px 48px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, color: 'white' }}
+                placeholder="Enter username"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+              />
+            </div>
+          </div>
 
           <div className="form-group" style={{ marginBottom: 20 }}>
             <label className="form-label" style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>Corporate Email</label>
             <div style={{ position: 'relative' }}>
-              <User size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <Mail size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
                 type="email"
-                name={`user_email_${Math.random().toString(36).substring(7)}`}
                 className="form-input"
                 style={{ padding: '14px 16px 14px 48px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, color: 'white' }}
                 placeholder="Enter your work email"
-                autoComplete="new-password"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
               />
@@ -123,11 +120,9 @@ export default function Login() {
               <Lock size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
                 type="password"
-                name={`user_pass_${Math.random().toString(36).substring(7)}`}
                 className="form-input"
                 style={{ padding: '14px 16px 14px 48px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, color: 'white' }}
                 placeholder="••••••••"
-                autoComplete="new-password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
               />
@@ -147,7 +142,7 @@ export default function Login() {
             {loading ? <Loader size={20} style={{ animation: 'spin 1s linear infinite' }} /> : (
               <>
                 <LogIn size={20} />
-                Access Dashboard
+                Register
               </>
             )}
           </button>
@@ -155,7 +150,7 @@ export default function Login() {
 
         <div style={{ marginTop: 24, textAlign: 'center' }}>
           <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>
-            Don't have an account? <a href="#" onClick={(e) => { e.preventDefault(); navigate('/register'); }} style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>Register here</a>
+            Already have an account? <a href="#" onClick={(e) => { e.preventDefault(); navigate('/login'); }} style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>Log in here</a>
           </p>
         </div>
       </motion.div>

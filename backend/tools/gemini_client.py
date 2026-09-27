@@ -22,18 +22,11 @@ MODEL_CHAIN = [
     "gemini-flash-lite-latest",
 ]
 
-_client: genai.Client | None = None
-
-
 def _get_client() -> genai.Client:
-    global _client
-    if _client is None:
-        api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
-        if not api_key:
-            raise ValueError("GOOGLE_API_KEY not set in backend/.env")
-        _client = genai.Client(api_key=api_key)
-        logger.info("Gemini client (google-genai SDK) initialized.")
-    return _client
+    api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("GOOGLE_API_KEY not set in environment")
+    return genai.Client(api_key=api_key)
 
 
 def generate_text(prompt: str, max_tokens: int = 1024) -> str:

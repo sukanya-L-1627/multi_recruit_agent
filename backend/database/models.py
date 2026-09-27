@@ -115,6 +115,7 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=True)
     hashed_password = Column(String(255), nullable=False)
     role = Column(String(50), default="HR")
+    gemini_api_key = Column(String(255), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 

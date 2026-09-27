@@ -13,6 +13,8 @@ import InterviewQuestions from './pages/InterviewQuestions'
 import SemanticSearch from './pages/SemanticSearch'
 import Workflow from './pages/Workflow'
 import Login from './pages/Login'
+import Register from './pages/Register'
+import Settings from './pages/Settings'
 import Home from './pages/Home'
 
 export default function App() {
@@ -36,6 +38,7 @@ export default function App() {
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
           {/* Protected Dashboard Routes */}
           <Route path="/*" element={
@@ -51,9 +54,11 @@ export default function App() {
                     <Route path="rankings" element={<Rankings />} />
                     <Route path="analytics" element={<Analytics />} />
                     <Route path="summaries" element={<RecruiterSummaries />} />
+                    <Route path="summaries" element={<RecruiterSummaries />} />
                     <Route path="interview-questions" element={<InterviewQuestions />} />
                     <Route path="search" element={<SemanticSearch />} />
                     <Route path="workflow" element={<Workflow />} />
+                    <Route path="settings" element={<Settings />} />
                     <Route path="*" element={<Navigate to="/dashboard" replace />} />
                   </Routes>
                 </div>
