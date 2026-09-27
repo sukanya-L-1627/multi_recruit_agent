@@ -1,0 +1,10 @@
+.env
+backend/.env
+backend/resumes/
+__pycache__/
+*.pyc
+venv/
+env/
+.vscode/
+.idea/
+node_modules/
